@@ -1,8 +1,8 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("ERC20TokenFactory", function () {
-  let ERC20TokenFactory;
+describe("MintableERC20TokenFactory", function () {
+  let MintableERC20TokenFactory;
   let factory;
   let owner;
   let addr1;
@@ -16,8 +16,8 @@ describe("ERC20TokenFactory", function () {
   beforeEach(async function () {
     [owner, addr1, addr2] = await ethers.getSigners();
 
-    ERC20TokenFactory = await ethers.getContractFactory("ERC20TokenFactory");
-    factory = await ERC20TokenFactory.deploy(fees);
+    MintableERC20TokenFactory = await ethers.getContractFactory("MintableERC20TokenFactory");
+    factory = await MintableERC20TokenFactory.deploy(fees);
 
     MintableERC20Token = await ethers.getContractFactory("MintableERC20Token");
     MintableBurnableERC20Token = await ethers.getContractFactory("MintableBurnableERC20Token");

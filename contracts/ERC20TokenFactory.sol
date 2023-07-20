@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-library ERC20TokenLibrary {
+library MintableERC20TokenLibrary {
     function createMintableToken(
         string memory name,
         string memory symbol,
@@ -62,8 +62,8 @@ library ERC20TokenLibrary {
     }
 }
 
-contract ERC20TokenFactory is Ownable {
-    using ERC20TokenLibrary for *;
+contract MintableERC20TokenFactory is Ownable {
+    using MintableERC20TokenLibrary for *;
 
     event TokenCreated(
         address indexed tokenAddress,
@@ -90,28 +90,28 @@ contract ERC20TokenFactory is Ownable {
         ERC20Token token;
 
         if (isMintable && isBurnable && isPausable) {
-            token = ERC20TokenLibrary.createMintableBurnablePausableToken(
+            token = MintableERC20TokenLibrary.createMintableBurnablePausableToken(
                 name,
                 symbol,
                 initialSupply,
                 msg.sender
             );
         } else if (isMintable && isBurnable) {
-            token = ERC20TokenLibrary.createMintableBurnableToken(
+            token = MintableERC20TokenLibrary.createMintableBurnableToken(
                 name,
                 symbol,
                 initialSupply,
                 msg.sender
             );
         } else if (isMintable && isPausable) {
-            token = ERC20TokenLibrary.createMintablePausableToken(
+            token = MintableERC20TokenLibrary.createMintablePausableToken(
                 name,
                 symbol,
                 initialSupply,
                 msg.sender
             );
         } else if (isMintable) {
-            token = ERC20TokenLibrary.createMintableToken(
+            token = MintableERC20TokenLibrary.createMintableToken(
                 name,
                 symbol,
                 initialSupply,
