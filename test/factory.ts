@@ -27,13 +27,20 @@ describe("ERC20TokenFactory", function () {
     const initialSupply = ethers.parseEther("1000");
 
     // Create ERC20 token through the factory
-    await factory.connect(user1).createERC20Token(name, symbol, initialSupply, true, true, true, {value: ethers.parseEther("0.1")});
+    await factory
+      .connect(user1)
+      .createERC20Token(name, symbol, initialSupply, true, true, true, {
+        value: ethers.parseEther("0.1"),
+      });
 
     // Get the created token address from the factory event
     const [tokenAddress] = await factory.queryFilter("TokenCreated");
 
     // Get the ERC20 token contract instance
-    const token = await ethers.getContractAt("ERC20Token", tokenAddress.args[0]);
+    const token = await ethers.getContractAt(
+      "ERC20Token",
+      tokenAddress.args[0],
+    );
 
     // Check token attributes
     expect(await token.name()).to.equal(name);
@@ -47,8 +54,11 @@ describe("ERC20TokenFactory", function () {
     const initialSupply = ethers.parseEther("1000");
 
     // User1 tries to create ERC20 token with insufficient fee
-    await expect(factory.connect(user1).createERC20Token(name, symbol, initialSupply, true, true, true))
-      .to.be.revertedWith("Insufficient fee");
+    await expect(
+      factory
+        .connect(user1)
+        .createERC20Token(name, symbol, initialSupply, true, true, true),
+    ).to.be.revertedWith("Insufficient fee");
   });
 
   it("should allow the owner to change the creation fee", async function () {
@@ -61,4 +71,3 @@ describe("ERC20TokenFactory", function () {
     expect(await factory.getCreationFee()).to.equal(newFee);
   });
 });
-

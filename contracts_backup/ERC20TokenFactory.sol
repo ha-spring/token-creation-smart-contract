@@ -118,7 +118,6 @@ contract ERC20TokenFactory is Ownable {
                 msg.sender
             );
         }
-
         emit TokenCreated(address(token), name, symbol);
 
         if (msg.value > _creationFee) {
@@ -156,9 +155,7 @@ contract MintableERC20Token is ERC20Token, Ownable {
         string memory symbol,
         uint256 initialSupply,
         address msgSender
-    ) ERC20Token(name, symbol, initialSupply, msgSender) {
-        _transferOwnership(msgSender);
-    }
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
 
     function mint(address account, uint256 amount) external onlyOwner {
         _mint(account, amount);
@@ -171,9 +168,7 @@ contract MintableBurnableERC20Token is ERC20Token, ERC20Burnable, Ownable {
         string memory symbol,
         uint256 initialSupply,
         address msgSender
-    ) ERC20Token(name, symbol, initialSupply, msgSender) {
-        _transferOwnership(msgSender);
-    }
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
 
     function mint(address account, uint256 amount) external onlyOwner {
         _mint(account, amount);
@@ -186,9 +181,7 @@ contract MintablePausableERC20Token is ERC20Token, Pausable, Ownable {
         string memory symbol,
         uint256 initialSupply,
         address msgSender
-    ) ERC20Token(name, symbol, initialSupply, msgSender) {
-        _transferOwnership(msgSender);
-    }
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
 
     function mint(address account, uint256 amount) external onlyOwner {
         _mint(account, amount);
@@ -222,9 +215,7 @@ contract MintableBurnablePausableERC20Token is
         string memory symbol,
         uint256 initialSupply,
         address msgSender
-    ) ERC20Token(name, symbol, initialSupply, msgSender) {
-        _transferOwnership(msgSender);
-    }
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
 
     function mint(address account, uint256 amount) external onlyOwner {
         _mint(account, amount);

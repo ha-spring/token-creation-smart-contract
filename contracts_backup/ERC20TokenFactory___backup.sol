@@ -7,6 +7,15 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 library ERC20TokenLibrary {
+    function createToken(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply,
+        address msgSender
+    ) internal returns (ERC20Token) {
+        return new ERC20Token(name, symbol, initialSupply, msgSender);
+    }
+
     function createMintableToken(
         string memory name,
         string memory symbol,
@@ -60,9 +69,42 @@ library ERC20TokenLibrary {
                 msgSender
             );
     }
+
+    function createBurnableToken(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply,
+        address msgSender
+    ) internal returns (BurnableERC20Token) {
+        return new BurnableERC20Token(name, symbol, initialSupply, msgSender);
+    }
+
+    function createPausableToken(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply,
+        address msgSender
+    ) internal returns (PausableERC20Token) {
+        return new PausableERC20Token(name, symbol, initialSupply, msgSender);
+    }
+
+    function createBurnablePausableToken(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply,
+        address msgSender
+    ) internal returns (BurnablePausableERC20Token) {
+        return
+            new BurnablePausableERC20Token(
+                name,
+                symbol,
+                initialSupply,
+                msgSender
+            );
+    }
 }
 
-contract ERC20TokenFactory is Ownable {
+contract _ERC20TokenFactory is Ownable {
     using ERC20TokenLibrary for *;
 
     event TokenCreated(
@@ -110,8 +152,36 @@ contract ERC20TokenFactory is Ownable {
                 initialSupply,
                 msg.sender
             );
+        } else if (isBurnable && isPausable) {
+            token = ERC20TokenLibrary.createBurnablePausableToken(
+                name,
+                symbol,
+                initialSupply,
+                msg.sender
+            );
         } else if (isMintable) {
             token = ERC20TokenLibrary.createMintableToken(
+                name,
+                symbol,
+                initialSupply,
+                msg.sender
+            );
+        } else if (isBurnable) {
+            token = ERC20TokenLibrary.createBurnableToken(
+                name,
+                symbol,
+                initialSupply,
+                msg.sender
+            );
+        } else if (isPausable) {
+            token = ERC20TokenLibrary.createPausableToken(
+                name,
+                symbol,
+                initialSupply,
+                msg.sender
+            );
+        } else {
+            token = ERC20TokenLibrary.createToken(
                 name,
                 symbol,
                 initialSupply,
@@ -156,9 +226,7 @@ contract MintableERC20Token is ERC20Token, Ownable {
         string memory symbol,
         uint256 initialSupply,
         address msgSender
-    ) ERC20Token(name, symbol, initialSupply, msgSender) {
-        _transferOwnership(msgSender);
-    }
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
 
     function mint(address account, uint256 amount) external onlyOwner {
         _mint(account, amount);
@@ -171,9 +239,7 @@ contract MintableBurnableERC20Token is ERC20Token, ERC20Burnable, Ownable {
         string memory symbol,
         uint256 initialSupply,
         address msgSender
-    ) ERC20Token(name, symbol, initialSupply, msgSender) {
-        _transferOwnership(msgSender);
-    }
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
 
     function mint(address account, uint256 amount) external onlyOwner {
         _mint(account, amount);
@@ -186,9 +252,7 @@ contract MintablePausableERC20Token is ERC20Token, Pausable, Ownable {
         string memory symbol,
         uint256 initialSupply,
         address msgSender
-    ) ERC20Token(name, symbol, initialSupply, msgSender) {
-        _transferOwnership(msgSender);
-    }
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
 
     function mint(address account, uint256 amount) external onlyOwner {
         _mint(account, amount);
@@ -222,13 +286,75 @@ contract MintableBurnablePausableERC20Token is
         string memory symbol,
         uint256 initialSupply,
         address msgSender
-    ) ERC20Token(name, symbol, initialSupply, msgSender) {
-        _transferOwnership(msgSender);
-    }
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
 
     function mint(address account, uint256 amount) external onlyOwner {
         _mint(account, amount);
     }
+
+    function pause() public onlyOwner {
+        _pause();
+    }
+
+    function unpause() public onlyOwner {
+        _unpause();
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override whenNotPaused {
+        super._beforeTokenTransfer(from, to, amount);
+    }
+}
+
+contract BurnableERC20Token is ERC20Token, ERC20Burnable {
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply,
+        address msgSender
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
+}
+
+contract PausableERC20Token is ERC20Token, Pausable, Ownable {
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply,
+        address msgSender
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
+
+    function pause() public onlyOwner {
+        _pause();
+    }
+
+    function unpause() public onlyOwner {
+        _unpause();
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override whenNotPaused {
+        super._beforeTokenTransfer(from, to, amount);
+    }
+}
+
+contract BurnablePausableERC20Token is
+    ERC20Token,
+    ERC20Burnable,
+    Pausable,
+    Ownable
+{
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply,
+        address msgSender
+    ) ERC20Token(name, symbol, initialSupply, msgSender) {}
 
     function pause() public onlyOwner {
         _pause();

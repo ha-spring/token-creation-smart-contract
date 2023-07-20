@@ -7,6 +7,22 @@ async function main() {
   await factory.waitForDeployment();
 
   console.log(`ERC20TokenFactory deployed to ${factory.target}`);
+
+  const name = "MyToken";
+  const symbol = "MTK";
+  const initialSupply = ethers.parseEther("1000");
+
+  const tx = await factory.createERC20Token(
+    name,
+    symbol,
+    initialSupply,
+    false,
+    false,
+    false,
+    { value: fees },
+  );
+  const receipt = await tx.wait();
+  console.log(receipt);
 }
 
 main().catch((error) => {
