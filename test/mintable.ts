@@ -87,7 +87,7 @@ describe("MintableERC20TokenFactory", function () {
     const symbol = "MMPT";
     const initialSupply = ethers.parseEther("6000");
 
-    const tx = await factory.createERC20Token(
+    const tx = await factory.connect(addr1).createERC20Token(
       name,
       symbol,
       initialSupply,
@@ -100,18 +100,18 @@ describe("MintableERC20TokenFactory", function () {
     const TokenCreatedLog = receipt.logs.filter(log => log?.fragment?.name === "TokenCreated")
     const tokenAddress = TokenCreatedLog[0].args[0]
     const token = await MintablePausableERC20Token.attach(tokenAddress);
-    await token.mint(owner.address, ethers.parseEther("1000"))
-    const ownerBalance = await token.balanceOf(owner.address);
+    await token.connect(addr1).mint(addr1.address, ethers.parseEther("1000"))
+    const ownerBalance = await token.balanceOf(addr1.address);
 
     expect(await token.name()).to.equal(name);
     expect(await token.symbol()).to.equal(symbol);
     expect(await ownerBalance).to.equal(ethers.parseEther("7000"));
     
-    await token.pause()
-    await expect(token.mint(owner.address, ethers.parseEther("1000"))).to.be.revertedWith("Pausable: paused");
-    await token.unpause()
-    await token.mint(owner.address, ethers.parseEther("1000"))
-    const ownerBalanceAfterPause = await token.balanceOf(owner.address);
+    await token.connect(addr1).pause()
+    await expect(token.connect(addr1).mint(owner.address, ethers.parseEther("1000"))).to.be.revertedWith("Pausable: paused");
+    await token.connect(addr1).unpause()
+    await token.connect(addr1).mint(addr1.address, ethers.parseEther("1000"))
+    const ownerBalanceAfterPause = await token.balanceOf(addr1.address);
     expect(await ownerBalanceAfterPause).to.equal(ethers.parseEther("8000"));
   });
 
