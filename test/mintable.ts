@@ -7,6 +7,7 @@ describe("MintableERC20TokenFactory", function () {
   let owner;
   let addr1;
   let feesReceiver;
+  let newFeesReceiver;
   let MintableERC20Token;
   let MintableBurnableERC20Token;
   let MintablePausableERC20Token;
@@ -14,7 +15,7 @@ describe("MintableERC20TokenFactory", function () {
   let fees = ethers.parseEther("0.01");
 
   beforeEach(async function () {
-    [owner, addr1, feesReceiver] = await ethers.getSigners();
+    [owner, addr1, feesReceiver, newFeesReceiver] = await ethers.getSigners();
 
     MintableERC20TokenFactory = await ethers.getContractFactory("MintableERC20TokenFactory");
     factory = await MintableERC20TokenFactory.deploy(fees, feesReceiver);
@@ -191,6 +192,20 @@ describe("MintableERC20TokenFactory", function () {
     ); 
     expect(await ethers.provider.getBalance(feesReceiver.address)).to.equal("10000140000000000000000")
   });
-
-  // Add more test cases to cover edge cases and exceptional scenarios as needed
+  
+  it("Should update fees receiver", async function () {
+    const newCreationFee = ethers.parseEther("0.1");
+    await factory.setFeesReceiver(newFeesReceiver);
+    await factory.createERC20Token(
+      "Test",
+      "TEST",
+      0,
+      true,
+      true,
+      true,
+      { value: newCreationFee },
+    ); 
+    expect(await ethers.provider.getBalance(newFeesReceiver.address)).to.equal("10000010000000000000000")
+    expect(await ethers.provider.getBalance(feesReceiver.address)).to.equal("10000140000000000000000")
+  });
 });
