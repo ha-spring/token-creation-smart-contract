@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./ERC20Token.sol";
 
 library MintableERC20TokenLibrary {
     function createMintableToken(
@@ -149,19 +150,6 @@ contract MintableERC20TokenFactory is Ownable {
 
     function getFeesReceiver() external view returns (address) {
         return _feesReceiver;
-    }
-}
-
-contract ERC20Token is ERC20 {
-    constructor(
-        string memory name,
-        string memory symbol,
-        uint256 initialSupply,
-        address msgSender
-    ) ERC20(name, symbol) {
-        if (initialSupply > 0) {
-            _mint(msgSender, initialSupply);
-        }
     }
 }
 
