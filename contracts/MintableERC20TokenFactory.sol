@@ -75,7 +75,7 @@ contract MintableERC20TokenFactory is Ownable {
     address private _feesReceiver;
 
     constructor(uint256 creationFee, address feesReceiver) {
-        require(feesReceiver != address(0), "Zero address");
+        require(feesReceiver != address(0), "Invalid receiver address");
         _creationFee = creationFee;
         _feesReceiver = feesReceiver;
     }
