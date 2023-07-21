@@ -72,9 +72,12 @@ contract MintableERC20TokenFactory is Ownable {
     );
 
     uint256 private _creationFee;
+    address private _feesReceiver;
 
-    constructor(uint256 creationFee) {
+    constructor(uint256 creationFee, address feesReceiver) {
+        require(feesReceiver != address(0), "Zero address");
         _creationFee = creationFee;
+        _feesReceiver = feesReceiver;
     }
 
     function createERC20Token(
@@ -90,12 +93,13 @@ contract MintableERC20TokenFactory is Ownable {
         ERC20Token token;
 
         if (isMintable && isBurnable && isPausable) {
-            token = MintableERC20TokenLibrary.createMintableBurnablePausableToken(
-                name,
-                symbol,
-                initialSupply,
-                msg.sender
-            );
+            token = MintableERC20TokenLibrary
+                .createMintableBurnablePausableToken(
+                    name,
+                    symbol,
+                    initialSupply,
+                    msg.sender
+                );
         } else if (isMintable && isBurnable) {
             token = MintableERC20TokenLibrary.createMintableBurnableToken(
                 name,
@@ -119,6 +123,8 @@ contract MintableERC20TokenFactory is Ownable {
             );
         }
 
+        payable(_feesReceiver).transfer(_creationFee);
+
         emit TokenCreated(address(token), name, symbol);
 
         if (msg.value > _creationFee) {
@@ -134,6 +140,15 @@ contract MintableERC20TokenFactory is Ownable {
 
     function getCreationFee() external view returns (uint256) {
         return _creationFee;
+    }
+
+    function setFeesReceiver(address receiver) external onlyOwner {
+        require(receiver != address(0), "Invalid receiver address");
+        _feesReceiver = receiver;
+    }
+
+    function getFeesReceiver() external view returns (address) {
+        return _feesReceiver;
     }
 }
 

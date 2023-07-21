@@ -6,18 +6,18 @@ describe("MintableERC20TokenFactory", function () {
   let factory;
   let owner;
   let addr1;
-  let addr2;
+  let feesReceiver;
   let MintableERC20Token;
   let MintableBurnableERC20Token;
   let MintablePausableERC20Token;
   let MintableBurnablePausableERC20Token;
-  let fees = ethers.parseEther("0.1");
+  let fees = ethers.parseEther("0.01");
 
   beforeEach(async function () {
-    [owner, addr1, addr2] = await ethers.getSigners();
+    [owner, addr1, feesReceiver] = await ethers.getSigners();
 
     MintableERC20TokenFactory = await ethers.getContractFactory("MintableERC20TokenFactory");
-    factory = await MintableERC20TokenFactory.deploy(fees);
+    factory = await MintableERC20TokenFactory.deploy(fees, feesReceiver);
 
     MintableERC20Token = await ethers.getContractFactory("MintableERC20Token");
     MintableBurnableERC20Token = await ethers.getContractFactory("MintableBurnableERC20Token");
@@ -50,6 +50,7 @@ describe("MintableERC20TokenFactory", function () {
     expect(await token.name()).to.equal(name);
     expect(await token.symbol()).to.equal(symbol);
     expect(await ownerBalance).to.equal(ethers.parseEther("2010"));
+    expect(await ethers.provider.getBalance(feesReceiver.address)).to.equal("10000010000000000000000")
   });
 
   it("Should create a mintable and burnable ERC20 token", async function () {
@@ -80,6 +81,7 @@ describe("MintableERC20TokenFactory", function () {
     await token.burn(ethers.parseEther("3000"))
     const ownerBalanceAfterBurn = await token.balanceOf(owner.address);
     expect(await ownerBalanceAfterBurn).to.equal(ethers.parseEther("3000"));
+    expect(await ethers.provider.getBalance(feesReceiver.address)).to.equal("10000020000000000000000")
   });
 
   it("Should create a mintable and pausable ERC20 token", async function () {
@@ -113,6 +115,7 @@ describe("MintableERC20TokenFactory", function () {
     await token.connect(addr1).mint(addr1.address, ethers.parseEther("1000"))
     const ownerBalanceAfterPause = await token.balanceOf(addr1.address);
     expect(await ownerBalanceAfterPause).to.equal(ethers.parseEther("8000"));
+    expect(await ethers.provider.getBalance(feesReceiver.address)).to.equal("10000030000000000000000")
   });
 
   it("Should create a mintable, burnable, and pausable ERC20 token", async function () {
@@ -150,6 +153,7 @@ describe("MintableERC20TokenFactory", function () {
     await token.burn(ethers.parseEther("3000"))
     const ownerBalanceAfterBurn = await token.balanceOf(owner.address);
     expect(await ownerBalanceAfterBurn).to.equal(ethers.parseEther("7000"));
+    expect(await ethers.provider.getBalance(feesReceiver.address)).to.equal("10000040000000000000000")
   });
 
   it("Should revert if creation fee is not sufficient", async function () {
@@ -173,9 +177,19 @@ describe("MintableERC20TokenFactory", function () {
   });
 
   it("Should update the creation fee", async function () {
-    const newCreationFee = ethers.parseEther("0.2");
+    const newCreationFee = ethers.parseEther("0.1");
     await factory.setCreationFee(newCreationFee);
     expect(await factory.getCreationFee()).to.equal(newCreationFee);
+    await factory.createERC20Token(
+      "Test",
+      "TEST",
+      0,
+      true,
+      true,
+      true,
+      { value: newCreationFee },
+    ); 
+    expect(await ethers.provider.getBalance(feesReceiver.address)).to.equal("10000140000000000000000")
   });
 
   // Add more test cases to cover edge cases and exceptional scenarios as needed
