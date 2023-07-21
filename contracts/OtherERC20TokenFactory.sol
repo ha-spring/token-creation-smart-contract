@@ -187,7 +187,7 @@ contract BurnablePausableERC20Token is
         uint256 initialSupply,
         address msgSender
     ) ERC20Token(name, symbol, initialSupply, msgSender) {
-        _transferOwnership(msgSender); 
+        _transferOwnership(msgSender);
     }
 
     function pause() public onlyOwner {
