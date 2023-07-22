@@ -1,0 +1,2 @@
+MintableERC20TokenFactory deployed to 0xf100C71df8fE8365664c4e8f269cf6dF55c5F2a6
+OtherERC20TokenFactory deployed to 0xAccD26d1F88881889Ed5c46235EAF111C9650a57
